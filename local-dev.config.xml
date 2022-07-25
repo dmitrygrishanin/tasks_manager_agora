@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<root>
+    <server>
+        <applicationConnectors>
+            <enabledConnectors>http</enabledConnectors>
+            <!-- HTTP-specific options -->
+            <http>
+                <!-- The port on which the HTTP server listens for service requests.
+                     Because Java cannot drop privileges in a POSIX system, these
+                     ports cannot be in the range 1-1024. A port value of 0 will
+                     make the OS use an arbitrary unused port. -->
+                <port>8080</port>
+            </http>
+            <https>
+                <port>8082</port>
+                <keyStorePath>keystore_test.jks</keyStorePath>
+                <keyStorePassword>notReallyImportant</keyStorePassword>
+            </https>
+        </applicationConnectors>
+        <adminConnectors>
+            <http>
+                <!-- The port on which the HTTP server listens for administrative
+                     requests. Subject to the same limitations as "port". If this is
+                     set to the same value as port, the admin routes will be mounted
+                     under /admin. -->
+                <port>8081</port>
+            </http>
+        </adminConnectors>
+    </server>
+    <!-- JDBC Database configuration.-->
+    <database>
+        <enabled>true</enabled>
+        <driverClass>org.postgresql.Driver</driverClass>
+        <user>postgres</user>
+        <password>test</password>
+        <url>jdbc:postgresql://localhost:5432/postgres</url>
+        <!-- the SQL query to run when validating a connection's liveness-->
+        <validationQuery>SELECT 1</validationQuery>
+        <!-- the minimum number of connections to keep open-->
+        <minSize>10</minSize>
+        <!-- the maximum number of connections to keep open-->
+        <maxSize>100</maxSize>
+        <!--any properties specific to your JDBC driver:-->
+        <properties>
+            <defaultSchemaName>hello</defaultSchemaName>
+            <charSet>UTF-8</charSet>
+            <hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
+        </properties>
+    </database>
+    <logging>
+        <!-- The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.-->
+        <level>INFO</level>
+        <console>
+            <enabled>true</enabled>
+        </console>
+        <!--Settings for logging to file.-->
+        <file>
+            <enabled>false</enabled>
+            <!-- The current file name.-->
+            <currentLogFilename>logs/hello.log</currentLogFilename>
+            <sizeBasedArchiving>
+                <archivedLogFilenamePattern>logs/hello.log.%i.gz</archivedLogFilenamePattern>
+            </sizeBasedArchiving>
+        </file>
+        <jsonFile>
+            <enabled>false</enabled>
+            <currentLogFilename>logs/hello-json.log</currentLogFilename>
+            <sizeBasedArchiving>
+                <archivedLogFilenamePattern>logs/hello-json.log.%i.gz</archivedLogFilenamePattern>
+            </sizeBasedArchiving>
+        </jsonFile>
+    </logging>
+    <requestLogging>
+        <console>
+            <enabled>false</enabled>
+        </console>
+        <file>
+            <enabled>false</enabled>
+            <currentLogFilename>logs/hello-request.log</currentLogFilename>
+            <sizeBasedArchiving>
+                <archivedLogFilenamePattern>logs/hello-request.log.%i.gz</archivedLogFilenamePattern>
+            </sizeBasedArchiving>
+        </file>
+        <jsonFile>
+            <enabled>false</enabled>
+            <currentLogFilename>logs/hello-json-request.log</currentLogFilename>
+            <sizeBasedArchiving>
+                <archivedLogFilenamePattern>logs/hello-json-request.log.%i.gz</archivedLogFilenamePattern>
+            </sizeBasedArchiving>
+        </jsonFile>
+        <headerMaskingRules>
+<!--            <user-agent>-->
+<!--                <mask_all>-->
+<!--                    <replaceMatch>^.*$</replaceMatch>-->
+<!--                    <replaceValue>*****</replaceValue>-->
+<!--                </mask_all>-->
+<!--            </user-agent>-->
+            <authorization>
+<!--                <mask_all>-->
+<!--                    <replaceMatch>\s(.*)</replaceMatch>-->
+<!--                    <replaceValue> *****</replaceValue>-->
+<!--                </mask_all>-->
+                <rule1>
+                    <replaceMatch>(ldap)\s(.*)</replaceMatch>
+                    <replaceValue>$1 *****</replaceValue>
+                </rule1>
+            </authorization>
+        </headerMaskingRules>
+    </requestLogging>
+    <customLoggingFileConfiguration1>
+        <!--If true, write log statements to file.-->
+        <enabled>false</enabled>
+        <!--Do not display log statements below this threshold to file.-->
+        <threshold>ALL</threshold>
+        <!-- A custom Logback format string.-->
+        <logFormat>%d{HH:mm:ss.SSS,UTC} %-5level %thread %mdc{serviceURL} %mdc{requestId} - %msg%n%ex</logFormat>
+        <!-- The current file name.-->
+        <currentLogFilename>logs/hello_custom.log</currentLogFilename>
+        <!--If true, log files are rotated and archived.-->
+        <archive>true</archive>
+        <!--Every day, contents of the current log file are zipped and archived using this file name pattern.-->
+        <archivedLogFilenamePattern>logs/hello_custom-%d.log.gz</archivedLogFilenamePattern>
+        <!--The maximum number of files (days) to keep before start deleting them.-->
+        <archivedFileCount>5</archivedFileCount>
+        <sizeBasedArchiving>
+            <!-- Check size of the currently active file. If it grows larger than the specified size, rotate and archive active file-->
+            <enabled>true</enabled>
+            <!--Option can be specified in bytes, kilobytes, megabytes or gigabytes by suffixing a numeric value with KB, MB and respectively GB-->
+            <maxFileSize>100mb</maxFileSize>
+            <!--The maximum number of files to keep before start deleting them.-->
+            <archivedFileCount>5</archivedFileCount>
+            <!--Value will provided by Console on deployment. Contents of the current log file are zipped and archived using this file name pattern.-->
+            <archivedLogFilenamePattern>logs/hello_custom-%i.log.gz</archivedLogFilenamePattern>
+        </sizeBasedArchiving>
+    </customLoggingFileConfiguration1>
+    <customJsonLoggingFileConfiguration>
+        <!--If true, write log statements to file in the JSON format.-->
+        <enabled>false</enabled>
+        <!--Do not display log statements below this threshold.-->
+        <threshold>ALL</threshold>
+        <!--If true, log files are rotated and archived.-->
+        <archive>true</archive>
+        <sizeBasedArchiving>
+            <!-- Check size of the currently active file. If it grows larger than the specified size, rotate and archive active file-->
+            <enabled>true</enabled>
+            <!--Option can be specified in bytes, kilobytes, megabytes or gigabytes by suffixing a numeric value with KB, MB and respectively GB-->
+            <maxFileSize>100mb</maxFileSize>
+            <!--The maximum number of files to keep before start deleting them.-->
+            <archivedFileCount>5</archivedFileCount>
+            <!--Value will provided by Console on deployment. Contents of the current log file are zipped and archived using this file name pattern.-->
+            <archivedLogFilenamePattern>logs/hello-custom-json.log.%i.gz</archivedLogFilenamePattern>
+        </sizeBasedArchiving>
+        <!--Value will provided by Console on deployment. The current file name.-->
+        <currentLogFilename>logs/hello-custom-json.log</currentLogFilename>
+        <!--Value will provided on service start. Contents of the current log file are zipped and archived using this file name pattern.-->
+        <archivedLogFilenamePattern></archivedLogFilenamePattern>
+        <!--The maximum number of files (days) to keep before start deleting them.-->
+        <archivedFileCount>50</archivedFileCount>
+        <!--MDC keys list to include-->
+        <mdcKeys>
+            <application/>
+            <serviceName/>
+            <serviceVersion/>
+            <serviceURL/>
+            <requestId/>
+            <traceId/>
+            <parentSpanId/>
+            <spanId/>
+            <remoteIP/>
+        </mdcKeys>
+    </customJsonLoggingFileConfiguration>
+    <!--Static & Dynamic configuration management.-->
+    <archaius>
+        <!-- If dynamic configuration changes are enabled, this is the initial delay in milliseconds before starting polling the dynamic files for changes-->
+        <dynamicPollInitialDelay>1000</dynamicPollInitialDelay>
+        <dynamicEnabled>false</dynamicEnabled>
+        <configurationService>
+            <enabled>false</enabled>
+            <host>configuration.dev.agora.odesk.com</host>
+            <port>8522</port>
+        </configurationService>
+    </archaius>
+    <!--stack name needed for correct work of configuration service on local machine -->
+    <deployment><stack><name>samplestack</name></stack></deployment>
+    <!--Service registration & discovery using Eureka.-->
+    <eureka>
+        <!--Service name to register to Eureka.-->
+        <name>helloDS</name>
+        <!--Service port to register to Eureka. Host is obtained automatically.-->
+        <port>8000</port>
+        <!--This is the common name which all same service instances must share.-->
+        <vipAddress>helloDS.odesk.com</vipAddress>
+        <datacenter>default</datacenter>
+        <environment>test</environment>
+        <serviceEnabled>false</serviceEnabled>
+        <mt>
+            <connect_timeout>1</connect_timeout>
+            <num_retries>0</num_retries>
+        </mt>
+        <validateInstanceId>false</validateInstanceId>
+        <!--Uncomment to allow local service instance Eureka registration in Dev env with "UP" status.-->
+        <!--Also remove previous definition of eureka.environment=test and eureka.serviceEnabled=false-->
+        <!--<registerLocalInstanceWithUPStatusEnabled>true</registerLocalInstanceWithUPStatusEnabled>-->
+        <!--<environment>dev</environment>-->
+        <!--<serviceEnabled>true</serviceEnabled>-->
+        <!--<shouldUseDns>true</shouldUseDns>-->
+        <!--<validateInstanceId>false</validateInstanceId>-->
+        <!--<eurekaServer>-->
+            <!--<domainName>eureka.dev.agora.odesk.com</domainName>-->
+            <!--<port>8010</port>-->
+            <!--<context>eureka/v2</context>-->
+        <!--</eurekaServer>-->
+        <!--<region>us-west-1</region>-->
+        <!--<preferSameZone>true</preferSameZone>-->
+        <!--<waitTimeInMsWhenSyncEmpty>0</waitTimeInMsWhenSyncEmpty>-->
+
+        <!-- Specifies IP address to register in Eureka with. Takes precedence over preferInterface property. -->
+        <!--<localIp>1.2.3.4</localIp>-->
+
+        <!-- Comma-separated list of network interfaces to use for Eureka registration. Eureka client use IP of first
+             interface it will be able to get address from. -->
+        <!--<preferInterface>eth8,vpn0</preferInterface>-->
+        <!--<registration>-->
+            <!--<customIdEnabled>true</customIdEnabled>-->
+        <!--</registration>-->
+    </eureka>
+
+    <ribbon>
+        <circuitRelated>java.io.IOException.SocketException,java.net.SocketTimeoutException,org.apache.http.conn.ConnectTimeoutException.class,org.apache.http.ConnectionClosedException.class,org.apache.http.HttpHost.HttpHostConnectException.class,com.odesk.agora.exception.HystrixServerErrorException</circuitRelated>
+    </ribbon>
+
+    <!--Uncomment to setup local service instance as Hermes-Consumer subscriber in dev env.-->
+    <!--<topics>-->
+    <!--<serviceVersion>2.0.1-SNAPSHOT</serviceVersion>-->
+    <!--<topic1>-->
+    <!--<topic>hello.example</topic>-->
+    <!--<threads>5</threads>-->
+    <!--<resource>hello/example/hello</resource>-->
+    <!--<deliveryDelay>0</deliveryDelay>-->
+    <!--<consumerCommandTimeout>60000</consumerCommandTimeout>-->
+    <!--</topic1>-->
+    <!--</topics>-->
+
+    <metadata>
+        <application>helloApp</application>
+        <!--team name-->
+        <owner>Core</owner>
+        <!--team email-->
+        <email>agora@elance-odesk.com</email>
+        <!--summary of the service functionality-->
+        <summary>hello service</summary>
+
+        <version>${project.version}</version>
+    </metadata>
+    <graphite>
+        <host>123</host>
+        <port>1</port>
+        <enabled>false</enabled>
+    </graphite>
+    <zipkin>
+        <host>zipkin</host>
+        <enabled>false</enabled>
+        <v2port>1</v2port>
+    </zipkin>
+    <hystrix>
+        <command>
+            <default>
+                <execution>
+                    <isolation>
+                        <thread>
+                            <timeoutInMilliseconds>50000</timeoutInMilliseconds>
+                        </thread>
+                    </isolation>
+                </execution>
+                <fallback>
+                    <!-- Whether HystrixCommand.getFallback() will be attempted when failure or rejection occurs.
+                         Instance Property: hystrix.command.[HystrixCommandKey].fallback.enabled
+                    -->
+                    <enabled>true</enabled>
+                </fallback>
+                <circuitBreaker>
+                    <!-- Whether a circuit breaker will be used to track health and short-circuit requests if it trips.
+                         Instance Property: hystrix.command.[HystrixCommandKey].circuitBreaker.enabled
+                    -->
+                    <enabled>true</enabled>
+                    <!-- If true the circuit breaker will remain closed and allow requests regardless of the error percentage.
+                         The circuitBreaker.forceOpen property takes precedence so if it set to true this property does nothing.
+                         Instance Property: hystrix.command.[HystrixCommandKey].circuitBreaker.forceClosed
+                    -->
+                    <forceClosed>true</forceClosed>
+                </circuitBreaker>
+            </default>
+        </command>
+    </hystrix>
+    <directoryDSV2>
+        <!--If true, dependent service discovery is performed through Eureka.-->
+        <eurekaEnabled>true</eurekaEnabled>
+        <!-- front.dev.agora.odesk.com If Eureka is disabled, this host will be used for dependent service discovery.-->
+        <host>directory-host</host>
+        <!-- 8064 If Eureka is disabled, this port will be used for dependent service discovery.-->
+        <port>8708</port>
+        <!--If Eureka is disabled, this admin port will be used for dependent service discovery.-->
+        <adminPort>8709</adminPort>
+        <!--If Eureka is enabled, this common name will be used to get instance info (host+port) from Eureka (admin port = port + 1000).-->
+        <vipAddress>directoryDSV2.odesk.com</vipAddress>
+        <!-- Http Jersey Client configuration for dependent service's CAL usage.-->
+        <httpClient>
+            <timeout>60000ms</timeout>
+            <connectionTimeout>60000ms</connectionTimeout>
+            <timeToLive>1 hour</timeToLive>
+            <cookiesEnabled>false</cookiesEnabled>
+            <maxConnections>1024</maxConnections>
+            <maxConnectionsPerRoute>1024</maxConnectionsPerRoute>
+            <keepAlive>0s</keepAlive>
+            <minThreads>1</minThreads>
+            <maxThreads>128</maxThreads>
+            <gzipEnabled>false</gzipEnabled>
+            <gzipEnabledForRequests>false</gzipEnabledForRequests>
+        </httpClient>
+    </directoryDSV2>
+    <jsrpc>
+        <!--If true, dependent service discovery is performed through Eureka.-->
+        <eurekaEnabled>false</eurekaEnabled>
+        <!-- dev01.odesk.com If Eureka is disabled, this host will be used for dependent service discovery.-->
+        <host>tools-jsrpc.dev.sv4.odesk.com</host>
+        <!-- If Eureka is disabled, this port will be used for dependent service discovery.-->
+        <port>3000</port>
+        <!--If Eureka is disabled, this admin port will be used for dependent service discovery.-->
+        <adminPort>0</adminPort>
+        <!--If Eureka is enabled, this common name will be used to get instance info (host+port) from Eureka (admin port = port + 1000).-->
+        <vipAddress></vipAddress>
+        <!-- Http Jersey Client configuration for dependent service's CAL usage.-->
+        <httpClient>
+            <timeout>6000ms</timeout>
+            <connectionTimeout>1000ms</connectionTimeout>
+            <timeToLive>1 hour</timeToLive>
+            <cookiesEnabled>false</cookiesEnabled>
+            <maxConnections>1024</maxConnections>
+            <maxConnectionsPerRoute>1024</maxConnectionsPerRoute>
+            <keepAlive>0s</keepAlive>
+            <minThreads>1</minThreads>
+            <maxThreads>128</maxThreads>
+            <gzipEnabled>false</gzipEnabled>
+            <gzipEnabledForRequests>false</gzipEnabledForRequests>
+            <chunkedEncodingEnabled>false</chunkedEncodingEnabled>
+        </httpClient>
+    </jsrpc>
+    <orpc>
+        <!--If true, dependent service discovery is performed through Eureka.-->
+        <eurekaEnabled>false</eurekaEnabled>
+        <!-- dev01.odesk.com If Eureka is disabled, this host will be used for dependent service discovery.-->
+        <host>localhost</host>
+        <!-- If Eureka is disabled, this port will be used for dependent service discovery.-->
+        <port>33200</port>
+        <!--If Eureka is disabled, this admin port will be used for dependent service discovery.-->
+        <adminPort>0</adminPort>
+        <!--If Eureka is enabled, this common name will be used to get instance info (host+port) from Eureka (admin port = port + 1000).-->
+        <vipAddress>ods.odesk.com</vipAddress>
+        <!-- Http Jersey Client configuration for dependent service's CAL usage.-->
+        <httpClient>
+            <timeout>60000ms</timeout>
+            <connectionTimeout>60000ms</connectionTimeout>
+            <timeToLive>1 hour</timeToLive>
+            <cookiesEnabled>false</cookiesEnabled>
+            <maxConnections>1024</maxConnections>
+            <maxConnectionsPerRoute>1024</maxConnectionsPerRoute>
+            <keepAlive>0s</keepAlive>
+            <minThreads>1</minThreads>
+            <maxThreads>128</maxThreads>
+            <gzipEnabled>false</gzipEnabled>
+            <gzipEnabledForRequests>false</gzipEnabledForRequests>
+            <chunkedEncodingEnabled>false</chunkedEncodingEnabled>
+        </httpClient>
+    </orpc>
+    <ods>
+        <!--If true, dependent service discovery is performed through Eureka.-->
+        <eurekaEnabled>false</eurekaEnabled>
+        <!--d-postgres.odesk.com If Eureka is disabled, this host will be used for dependent service discovery.-->
+        <host>localhost</host>
+        <!--10000 If Eureka is disabled, this port will be used for dependent service discovery.-->
+        <port>33200</port>
+        <!--If Eureka is disabled, this admin port will be used for dependent service discovery.-->
+        <adminPort>0</adminPort>
+        <!--If Eureka is enabled, this common name will be used to get instance info (host+port) from Eureka (admin port = port + 1000).-->
+        <vipAddress>ods.odesk.com</vipAddress>
+        <!-- Http Jersey Client configuration for dependent service's CAL usage.-->
+        <httpClient>
+            <timeout>60000ms</timeout>
+            <connectionTimeout>60000ms</connectionTimeout>
+            <timeToLive>1 hour</timeToLive>
+            <cookiesEnabled>false</cookiesEnabled>
+            <maxConnections>1024</maxConnections>
+            <maxConnectionsPerRoute>1024</maxConnectionsPerRoute>
+            <keepAlive>0s</keepAlive>
+            <minThreads>1</minThreads>
+            <maxThreads>128</maxThreads>
+            <gzipEnabled>false</gzipEnabled>
+            <gzipEnabledForRequests>false</gzipEnabledForRequests>
+        </httpClient>
+    </ods>
+
+    <kms>
+        <enabled>false</enabled>
+    </kms>
+
+    <!-- set enabled to true to activate security checks -->
+    <security>
+        <enabled>true</enabled>
+
+        <secureResources>
+            <hello>/secure/**</hello>
+        </secureResources>
+
+        <entauth>
+            <secureResources>
+                <entHello>/secure/**</entHello>
+            </secureResources>
+        </entauth>
+
+        <oauth>
+            <secureResources>
+                <hello>/secure/hellos/user/**</hello>
+            </secureResources>
+        </oauth>
+
+        <checkUrlMappingAmbiguity>false</checkUrlMappingAmbiguity>
+
+        <authenticationEnabled>true</authenticationEnabled>
+
+        <accessControlEnabled>true</accessControlEnabled>
+
+        <entityPermissions>
+            <!-- by default no access to secure resources -->
+            <default></default>
+            <!-- helloReader service can only read hellos -->
+            <oauth2DS>hello:read</oauth2DS>
+            <!-- helloReader service can only read hellos -->
+            <helloReader>hello:read</helloReader>
+            <!-- helloEditor can create and update hellos, but can NOT read -->
+            <helloEditor>hello:create,update</helloEditor>
+            <!-- helloSupervisor can do everything with hellos -->
+            <helloSupervisor>hello:*</helloSupervisor>
+        </entityPermissions>
+
+        <oauth2>false</oauth2>
+        <roleActionMapping>
+            <IsRecruiter>changeContractSupervisor,dummy</IsRecruiter>
+            <HasTeamRoom>changeSomething1,dummy1</HasTeamRoom>
+            <IsBuyerManager>changeSomething2,dummy2</IsBuyerManager>
+            <superRole>superPersmission</superRole>
+        </roleActionMapping>
+        <tls>
+            <!-- Uncomment to enable server-side TLS support -->
+            <server>
+                <enabled>true</enabled>
+            </server>
+            <!-- Uncomment to enable client-side TLS support.
+            Truststore containing Vault root certificate is available by default at every instance -->
+            <client>
+                <enabled>true</enabled>
+                <trustStorePath>truststore_test.jks</trustStorePath>
+                <trustStorePassword>notasecret</trustStorePassword>
+                <verifyHostname>true</verifyHostname>
+            </client>
+        </tls>
+    </security>
+    <oauth2>
+        <eurekaEnabled>false</eurekaEnabled>
+        <host>example.com</host>
+        <port>27950</port>
+        <adminPort>27950</adminPort>
+        <vipAddress>example.com</vipAddress>
+        <httpClient>
+            <timeout>60000ms</timeout>
+            <connectionTimeout>60000ms</connectionTimeout>
+        </httpClient>
+    </oauth2>
+    <atlas>
+        <enabled>false</enabled>
+    </atlas>
+<!--    <atlas>-->
+<!--        &lt;!&ndash; if true, service sends information to Atlas.&ndash;&gt;-->
+<!--        <enabled>true</enabled>-->
+<!--        &lt;!&ndash;atlas-api url, e.g. http://atlas.dev.agora.odesk.com:7101/api/v1/ ; provided by Configuration service &ndash;&gt;-->
+<!--        <apiUrl>http://atlas.dev.agora.odesk.com:7101/api/v1/</apiUrl>-->
+<!--        &lt;!&ndash; Atlas-query used to retrieve metrics from Atlas and build new metrics(gauges) based on query result &ndash;&gt;-->
+<!--        <query>-->
+<!--            <enabled>false</enabled>-->
+<!--            &lt;!&ndash;atlas-query service url, e.g. http://atlas-query.dev.agora.odesk.com:7101/api/v1/ ; provided by Configuration service &ndash;&gt;-->
+<!--            <apiUrl>http://atlas-query.dev.agora.odesk.com:7101/api/v1/</apiUrl>-->
+<!--        </query>-->
+<!--        <enabledPercentileTimers>true</enabledPercentileTimers>-->
+<!--        <excludeMetrics>-->
+<!--            <exclude1>^jvm\.(.*)$</exclude1>-->
+<!--            &lt;!&ndash;<exclude2>^hystrix\.(.*)$</exclude2>&ndash;&gt;-->
+<!--            <exclude3>^spectator\.(.*)$</exclude3>-->
+<!--        </excludeMetrics>-->
+<!--    </atlas>-->
+    <prometheus>
+        <enabled>false</enabled>
+    </prometheus>
+
+    <sla>
+        <requests>
+            <incoming>
+                <latency>
+                    <default>
+                        60 <!-- default for all incoming requests -->
+                        <HelloResource> <!-- Jersey ResourceSimpleName.Method -->
+                            <getHello>30</getHello>
+                        </HelloResource>
+                    </default>
+                    <UNKNOWN> <!-- client name (aka 'entity name') -->
+                        <PingResource> <!-- Jersey ResourceSimpleName.Method -->
+                            <_getPing>15</_getPing>
+                        </PingResource>
+                    </UNKNOWN>
+                </latency>
+            </incoming>
+            <outgoing>
+                <latency>
+                    <default>500</default> <!-- default for all outgoing requests -->
+                    <Atlas> <!-- specific targetService -->
+                        <default>1000</default> <!-- default for all outgoing requests for 'DirectoryDS' service-->
+                        <Query>125</Query> <!-- SLA for targetService="DirectoryDS" and targetResource="GetPersonByNid" -->
+                    </Atlas>
+                </latency>
+            </outgoing>
+        </requests>
+    </sla>
+    <stashHttps>
+        <!--If true, dependent service discovery is performed through Eureka.-->
+        <eurekaEnabled>false</eurekaEnabled>
+        <host>stash.odesk.com</host>
+        <port>443</port>
+        <!--If Eureka is disabled, this admin port will be used for dependent service discovery.-->
+        <adminPort>0</adminPort>
+        <!--If Eureka is enabled, this common name will be used to get instance info (host+port) from Eureka (admin port = port + 1000).-->
+        <vipAddress></vipAddress>
+        <scheme>https</scheme>
+        <!-- Http Jersey Client configuration for dependent service's CAL usage.-->
+        <httpClient>
+            <timeout>60000ms</timeout>
+            <connectionTimeout>60000ms</connectionTimeout>
+            <timeToLive>1 hour</timeToLive>
+            <cookiesEnabled>false</cookiesEnabled>
+            <maxConnections>1024</maxConnections>
+            <maxConnectionsPerRoute>1024</maxConnectionsPerRoute>
+            <keepAlive>0s</keepAlive>
+            <minThreads>1</minThreads>
+            <maxThreads>128</maxThreads>
+            <gzipEnabled>false</gzipEnabled>
+            <gzipEnabledForRequests>false</gzipEnabledForRequests>
+            <chunkedEncodingEnabled>false</chunkedEncodingEnabled>
+        </httpClient>
+    </stashHttps>
+    <heavyService>
+        <eurekaEnabled>true</eurekaEnabled>
+        <host>127.0.0.1</host>
+        <port>18936</port>
+        <adminPort>1</adminPort>
+        <vipAddress>heavyService.odesk.com</vipAddress>
+        <httpClient>
+            <timeout>60000ms</timeout>
+            <connectionTimeout>60000ms</connectionTimeout>
+            <timeToLive>1 hour</timeToLive>
+            <cookiesEnabled>false</cookiesEnabled>
+            <maxConnections>1024</maxConnections>
+            <maxConnectionsPerRoute>1024</maxConnectionsPerRoute>
+            <keepAlive>0s</keepAlive>
+            <minThreads>1</minThreads>
+            <maxThreads>128</maxThreads>
+            <gzipEnabled>false</gzipEnabled>
+            <gzipEnabledForRequests>false</gzipEnabledForRequests>
+            <tlsEnabled>true</tlsEnabled>
+        </httpClient>
+    </heavyService>
+</root>
